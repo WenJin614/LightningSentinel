@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="LightningProbe/LightningProbe.csproj" />
+  <Project Path="LightningSentinel.ApiService/LightningSentinel.ApiService.csproj" />
+  <Project Path="LightningSentinel.AppHost/LightningSentinel.AppHost.csproj" />
+  <Project Path="LightningSentinel.Common/LightningSentinel.Shared.csproj" Id="b41aac6d-ce2c-4f62-9208-8ae266c35f83" />
+  <Project Path="LightningSentinel.Data/LightningSentinel.Data.csproj" Id="8e777ebf-9719-4052-a9bf-a94b77d574f9" />
+  <Project Path="LightningSentinel.ServiceDefaults/LightningSentinel.ServiceDefaults.csproj" />
+  <Project Path="LightningSentinel.Web/LightningSentinel.Web.csproj" />
+</Solution>
