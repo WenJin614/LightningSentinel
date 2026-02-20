@@ -2,10 +2,16 @@ using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using LightningProbe.Interceptor;
 using LightningSentinel.Shared;
-using Lnrpc;       // Main LND client namespace
-using Routerrpc;    // Router sub-service namespace
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.AddServiceDefaults();
+
+builder.Services.AddHttpClient("api", client =>
+{
+    client.BaseAddress = new Uri("https+http://apiservice");
+})
+.AddServiceDiscovery();
 
 // 1. Load the Settings
 var lightningSettings = builder.Configuration
@@ -29,7 +35,6 @@ var authenticatedInvoker = channel.Intercept(macaroonInterceptor);
 builder.Services.Configure<LightningSettings>(builder.Configuration.GetSection("LightningSettings"));
 builder.Services.AddSingleton(new Lnrpc.Lightning.LightningClient(authenticatedInvoker));
 builder.Services.AddSingleton(new Routerrpc.Router.RouterClient(authenticatedInvoker));
-builder.Services.AddSingleton(new HttpClient());
 
 builder.Services.AddHostedService<Worker>();
 

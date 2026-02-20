@@ -19,14 +19,15 @@ public class Worker : BackgroundService
     private readonly Routerrpc.Router.RouterClient _routerClient;
 
     public Worker(
-            ILogger<Worker> logger,
-            HttpClient httpClient,
-            IOptions<LightningSettings> lightningSettings,
-            Lnrpc.Lightning.LightningClient lndClient,      // Injected from Program.cs
-            Routerrpc.Router.RouterClient routerClient)      // Injected from Program.cs
+        ILogger<Worker> logger,
+        IHttpClientFactory clientFactory, // Inject the Factory instead
+        IOptions<LightningSettings> lightningSettings,
+        Lnrpc.Lightning.LightningClient lndClient,
+        Routerrpc.Router.RouterClient routerClient)
     {
         _logger = logger;
-        _httpClient = httpClient;
+        // Explicitly ask for the named client
+        _httpClient = clientFactory.CreateClient("api");
         _lightningSettings = lightningSettings.Value;
         _lndClient = lndClient;
         _routerClient = routerClient;
@@ -46,7 +47,7 @@ public class Worker : BackgroundService
 
             // 3. Send the result to the Sentinel API
             // Note: "apiservice" is the name given in Aspire AppHost
-            await _httpClient.PostAsJsonAsync("https://localhost:7437/api/v1/Probes", result, stoppingToken);
+            await _httpClient.PostAsJsonAsync("api/v1/probes", result, stoppingToken);
 
             _logger.LogInformation("Probe sent to Sentinel. Status: {status}", result.IsAlive);
 

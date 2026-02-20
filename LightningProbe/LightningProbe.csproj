@@ -16,10 +16,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LightningSentinel.Common\LightningSentinel.Shared.csproj" />
+    <ProjectReference Include="..\LightningSentinel.ServiceDefaults\LightningSentinel.ServiceDefaults.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

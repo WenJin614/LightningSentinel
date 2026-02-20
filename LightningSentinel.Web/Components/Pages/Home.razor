@@ -1,7 +1,45 @@
 ﻿@page "/"
+@using LightningSentinel.Shared.LightningProbe;
+@inject IHttpClientFactory ClientFactory
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@if (probeResults == null)
+{
+    <p><em>Loading probe data...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var probe in probeResults)
+        {
+            <li>@probe.PubKey: @(probe.IsAlive ? "Online" : "Offline")</li>
+        }
+    </ul>
+}
+
+@code {
+    private ProbeResult[]? probeResults;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = ClientFactory.CreateClient("api");
+
+        // 1. Create the data to send
+        var myProbe = new ProbeResult("Node-01", true, 45, DateTime.UtcNow);
+
+        // 2. Use POST instead of GET to match your [HttpPost] attribute
+        // Note the full path: api/v1/probes
+        var response = await client.PostAsJsonAsync("api/v1/probes", myProbe);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Handle success
+            Console.WriteLine("Probe sent successfully!");
+        }
+    }
+}
