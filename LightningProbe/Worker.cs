@@ -46,7 +46,7 @@ public class Worker : BackgroundService
 
             // 3. Send the result to the Sentinel API
             // Note: "apiservice" is the name given in Aspire AppHost
-            await _httpClient.PostAsJsonAsync("http://apiservice/api/v1/probes", result, stoppingToken);
+            await _httpClient.PostAsJsonAsync("https://localhost:7437/api/v1/Probes", result, stoppingToken);
 
             _logger.LogInformation("Probe sent to Sentinel. Status: {status}", result.IsAlive);
 

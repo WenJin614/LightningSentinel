@@ -7,14 +7,13 @@ using Routerrpc;    // Router sub-service namespace
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.Configure<LightningSettings>(
-    builder.Configuration.GetSection("LightningSettings"));
-// 1. Setup
-var lndAddress = "https://127.0.0.1:10009";
-var macaroonHex = "0201036c6e64...";
+// 1. Load the Settings
+var lightningSettings = builder.Configuration
+    .GetSection("LightningSettings")
+    .Get<LightningSettings>();
 
-// 2. The Channel (Long-lived)
-var channel = GrpcChannel.ForAddress(lndAddress, new GrpcChannelOptions
+// 2. Setup the Channel using Settings
+var channel = GrpcChannel.ForAddress(lightningSettings.LNDAddress, new GrpcChannelOptions
 {
     HttpHandler = new HttpClientHandler
     {
@@ -22,11 +21,12 @@ var channel = GrpcChannel.ForAddress(lndAddress, new GrpcChannelOptions
     }
 });
 
-// 3. The Authenticated Invoker (Wraps the channel with your "ID Card")
-var macaroonInterceptor = new MacaroonInterceptor(macaroonHex);
+// 3. Authenticate with the Macaroon from Settings
+var macaroonInterceptor = new MacaroonInterceptor(lightningSettings.MacaroonHex);
 var authenticatedInvoker = channel.Intercept(macaroonInterceptor);
 
 // 4. Registration (Using the authenticatedInvoker instead of the raw channel)
+builder.Services.Configure<LightningSettings>(builder.Configuration.GetSection("LightningSettings"));
 builder.Services.AddSingleton(new Lnrpc.Lightning.LightningClient(authenticatedInvoker));
 builder.Services.AddSingleton(new Routerrpc.Router.RouterClient(authenticatedInvoker));
 builder.Services.AddSingleton(new HttpClient());
