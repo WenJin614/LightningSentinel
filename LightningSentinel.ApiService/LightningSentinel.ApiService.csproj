@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,11 +8,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LightningSentinel.Common\LightningSentinel.Shared.csproj" />
+    <ProjectReference Include="..\LightningSentinel.Data\LightningSentinel.Data.csproj" />
     <ProjectReference Include="..\LightningSentinel.ServiceDefaults\LightningSentinel.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.46" />
   </ItemGroup>
 

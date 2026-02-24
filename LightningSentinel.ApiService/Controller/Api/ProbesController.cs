@@ -1,4 +1,5 @@
-﻿using LightningSentinel.Shared.LightningProbe;
+﻿using LightningSentinel.ApiService.Service;
+using LightningSentinel.Shared.LightningProbe;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LightningSentinel.ApiService.Controller.Api
@@ -7,14 +8,23 @@ namespace LightningSentinel.ApiService.Controller.Api
     [Route("api/v1/[controller]")] // This maps to api/v1/probes
     public class ProbesController : ControllerBase
     {
-        [HttpPost]
-        public IActionResult ReceiveProbe([FromBody] ProbeResult result)
-        {
-            // 1. Process the data (e.g., save to a database)
-            Console.WriteLine($"Received probe from: {result.PubKey}");
+        private readonly IProbeService _probeService;
 
-            // 2. Return a 201 Created or 202 Accepted
-            return Accepted();
+        public ProbesController(IProbeService probeService)
+        {
+            _probeService = probeService;
+        }
+
+        /// <summary>
+        /// Store probe result into db.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> ReceiveProbeAsync([FromBody] ProbeResult result)
+        {
+            await _probeService.AddProbeResult(result);
+            return Ok();
         }
     }
 }

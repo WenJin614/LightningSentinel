@@ -1,5 +1,6 @@
 using LightningSentinel.Shared.LightningProbe;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+
+var connectionString = builder.Configuration.GetConnectionString("SentinelDb");
+
+builder.Services.AddDbContext<SentinelDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
