@@ -1,4 +1,5 @@
-﻿using LightningSentinel.Shared.LightningProbe;
+﻿using LightningSentinel.Data.Entities;
+using LightningSentinel.Shared.LightningProbe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +16,31 @@ namespace LightningSentinel.ApiService.Service
             _logger = logger;
         }
 
-        public async Task<bool> AddProbeResult(ProbeResult result)
+        public async Task<bool> AddProbeResult(ProbeResult result, CancellationToken ct)
         {
             try
             {
-                //_context.ProbeResults.Add(result);
-                await _context.SaveChangesAsync();
+                var entity = new ProbeResultEntity
+                {
+                    PubKey = result.PubKey,
+                    IsAlive = result.IsAlive,
+                    LatencyMs = result.LatencyMs,
+                    CheckedAt = result.CheckedAt,
+                };
+
+                _context.Set<ProbeResultEntity>().Add(entity);
+                await _context.SaveChangesAsync(ct);
+
                 return true;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Database operation was cancelled by the user or system.");
+                return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Database error");
+                _logger.LogError(ex, "Actual database error while saving probe result");
                 return false;
             }
         }

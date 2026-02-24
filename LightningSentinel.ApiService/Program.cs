@@ -17,7 +17,8 @@ builder.Services.AddOpenApi();
 var connectionString = builder.Configuration.GetConnectionString("SentinelDb");
 
 builder.Services.AddDbContext<SentinelDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, x =>
+        x.MigrationsHistoryTable("__EFMigrationsHistory", "sentinel")));
 
 var app = builder.Build();
 

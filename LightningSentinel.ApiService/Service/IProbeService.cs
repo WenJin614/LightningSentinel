@@ -4,6 +4,6 @@ namespace LightningSentinel.ApiService.Service
 {
     public interface IProbeService
     {
-        Task<bool> AddProbeResult(ProbeResult result);
+        Task<bool> AddProbeResult(ProbeResult result, CancellationToken ct);
     }
 }
