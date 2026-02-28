@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
+    <PackageReference Include="Grpc.Core" Version="2.46.6" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -22,4 +24,9 @@
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.46" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Protobuf Include="..\LightningSentinel.Common\Protos\protos.proto"
+					GrpcServices="Server"
+					Link="Protos\protos.proto" />
+	</ItemGroup>
 </Project>

@@ -9,8 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="BTCPayServer.Lightning.LND" Version="1.5.8" />
-    <PackageReference Include="Google.Protobuf" Version="3.33.5" />
+    <PackageReference Include="Google.Protobuf" Version="3.34.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.76.0" />
     <PackageReference Include="Grpc.Tools" Version="2.78.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,9 +24,9 @@
     <ProjectReference Include="..\LightningSentinel.Common\LightningSentinel.Shared.csproj" />
     <ProjectReference Include="..\LightningSentinel.ServiceDefaults\LightningSentinel.ServiceDefaults.csproj" />
   </ItemGroup>
-
 	<ItemGroup>
 		<Protobuf Include="Protos\lightning.proto" />
 		<Protobuf Include="Protos\router.proto" GrpcServices="Client" protoRoot="Protos" />
+		<Protobuf Include="..\LightningSentinel.Common\Protos\protos.proto" GrpcServices="Client" Link="Protos\protos.proto" />
 	</ItemGroup>
 </Project>

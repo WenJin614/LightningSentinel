@@ -8,9 +8,9 @@ namespace LightningSentinel.ApiService.Service
     public class ProbeService : IProbeService
     {
         private readonly SentinelDbContext _context;
-        private readonly ILogger _logger;
+        private readonly ILogger<ProbeService> _logger;
 
-        public ProbeService(SentinelDbContext context, ILogger logger)
+        public ProbeService(SentinelDbContext context, ILogger<ProbeService> logger)
         {
             _context = context;
             _logger = logger;

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "Sentinel.Grpc";
+
+package sentinel;
+
+service ProbeGrpcService {
+  rpc SendProbeResult (ProbeRequest) returns (ProbeResponse);
+}
+
+message ProbeRequest {
+  string pub_key = 1;
+  bool is_alive = 2;
+  int32 latency_ms = 3;
+  int64 checked_at_unix = 4;
+}
+
+message ProbeResponse {
+  bool success = 1;
+}

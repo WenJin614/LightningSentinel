@@ -14,4 +14,7 @@ builder.AddProject<Projects.LightningSentinel_Web>("webfrontend")
 builder.AddProject<Projects.LightningProbe>("lightningprobe")
        .WithReference(apiService);
 
+builder.AddProject<Projects.LightningProbe>("worker")
+       .WithReference(apiService); // This "links" the names together
+
 builder.Build().Run();

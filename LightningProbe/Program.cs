@@ -2,10 +2,16 @@ using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using LightningProbe.Interceptor;
 using LightningSentinel.Shared;
+using Sentinel.Grpc;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddGrpcClient<Sentinel.Grpc.ProbeGrpcService.ProbeGrpcServiceClient>(o =>
+{
+    o.Address = new("http://apiservice");
+});
 
 builder.Services.AddHttpClient("api", client =>
 {

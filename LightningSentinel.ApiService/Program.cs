@@ -1,3 +1,4 @@
+using LightningSentinel.ApiService.Service;
 using LightningSentinel.Shared.LightningProbe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+
+builder.Services.AddGrpc();
+
+builder.Services.AddScoped<IProbeService, ProbeService>();
 
 var connectionString = builder.Configuration.GetConnectionString("SentinelDb");
 
@@ -39,5 +44,9 @@ app.MapControllers();
 app.MapGet("/", () => "Lightning Sentinel API is running. Send probes to /api/v1/probes");
 
 app.MapDefaultEndpoints();
+
+app.MapGrpcService<LightningSentinel.ApiService.Service.Grpc.GrpcProbeService>();
+
+
 
 app.Run();
