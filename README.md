@@ -1,6 +1,6 @@
 # Lightning Node Health Monitor Dashboard
 
-![Node Health Monitor Screenshot](image_0.png)
+![Node Health Monitor Screenshot](healthdashboard.png)
 
 This project provides a real-time, visual dashboard built with Blazor that monitors the health and reliability of a Lightning Network node. It leverages a backend API to calculate a dynamic "Health Score" based on a series of recent probe results.
 
