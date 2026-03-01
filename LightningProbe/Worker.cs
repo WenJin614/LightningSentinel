@@ -75,17 +75,26 @@ public class Worker : BackgroundService
 
     public async Task<ProbeResult> SentinelCheck(string pubKey, bool deepProbe = false)
     {
-        // 1. Always try the Cheap Check first (QueryRoutes)
-        var routeResult = await CheckRouteAvailability(pubKey);
-
-        // 2. If QueryRoutes says it's down, OR if we want to "Double Check"
-        if (!routeResult.IsAlive || deepProbe)
+        // 1. If we are in "Sentinel Mode" (deepProbe), go straight to the fake hash.
+        // This is the only way to be 100% sure.
+        if (deepProbe)
         {
-            // Only run the Fake Hash Probe if we really need to verify plumbing
+            _logger.LogInformation("Performing Deep Physical Probe for {pubKey}", pubKey);
             return await PerformFakeHashProbe(pubKey);
         }
 
-        return routeResult;
+        // 2. Otherwise, check gossip first
+        var gossipResult = await CheckRouteAvailability(pubKey);
+
+        // 3. Logic Flip: Even if Gossip says "Yes", if we want to be high-accuracy,
+        // we should verify it with a probe.
+        if (gossipResult.IsAlive)
+        {
+            _logger.LogInformation("Gossip says UP, but verifying physical plumbing...");
+            return await PerformFakeHashProbe(pubKey);
+        }
+
+        return gossipResult;
     }
 
     // METHOD 1: The Cheap "Gossip" Check
@@ -98,7 +107,7 @@ public class Worker : BackgroundService
             {
                 PubKey = pubKey,
                 Amt = 1000, // Check if a 1k sat path is possible
-                UseMissionControl = true
+                UseMissionControl = false
             };
             var resp = await _lndClient.QueryRoutesAsync(request);
             return new ProbeResult(pubKey, resp.Routes.Any(), (int)sw.ElapsedMilliseconds, DateTime.UtcNow);

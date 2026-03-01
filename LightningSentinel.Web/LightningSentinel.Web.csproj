@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LightningSentinel.Common\LightningSentinel.Shared.csproj" />
+    <ProjectReference Include="..\LightningSentinel.Data\LightningSentinel.Data.csproj" />
     <ProjectReference Include="..\LightningSentinel.ServiceDefaults\LightningSentinel.ServiceDefaults.csproj" />
   </ItemGroup>
 

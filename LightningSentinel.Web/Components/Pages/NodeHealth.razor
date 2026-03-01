@@ -1,0 +1,132 @@
+﻿@page "/node-health/{PubKey}"
+@using LightningSentinel.Data.Entities
+@* Inject the custom client instead of the generic HttpClient *@
+@inject ProbeHttpClient ProbeClient
+
+<PageTitle>Node Health - @PubKey</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Node Health Monitor</h5>
+            @if (!loading)
+            {
+                <span class="badge @GetScoreColorClass()">Score: @HealthScore%</span>
+            }
+        </div>
+
+        <div class="card-body">
+            @if (loading)
+            {
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Analyzing node reliability...</p>
+                </div>
+            }
+            else if (probeData == null || !probeData.Any())
+            {
+                <div class="alert alert-warning">No probe history found for this Public Key.</div>
+            }
+            else
+            {
+                <div class="row text-center mb-4">
+                    <div class="col-md-4 border-end">
+                        <h3 class="fw-bold">@HealthScore%</h3>
+                        <small class="text-muted text-uppercase">Reliability</small>
+                    </div>
+                    <div class="col-md-4 border-end">
+                        <h3 class="fw-bold">@AvgLatency.ToString("N0") ms</h3>
+                        <small class="text-muted text-uppercase">Avg Latency</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="fw-bold">@probeData.Count(p => p.IsAlive) / @probeData.Count</h3>
+                        <small class="text-muted text-uppercase">Uptime (Last 50)</small>
+                    </div>
+                </div>
+
+                <h6 class="border-bottom pb-2 mb-3">Recent Probe History</h6>
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover table-sm">
+                        <thead class="sticky-top bg-white">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Status</th>
+                                <th>Latency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var probe in probeData)
+                            {
+                                <tr>
+                                    <td>@probe.CheckedAt.ToString("g")</td>
+                                    <td>
+                                        <span class="badge @(probe.IsAlive ? "bg-success" : "bg-danger")">
+                                            @(probe.IsAlive ? "ONLINE" : "OFFLINE")
+                                        </span>
+                                    </td>
+                                    <td>@probe.LatencyMs ms</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string PubKey { get; set; } = string.Empty;
+
+    private List<ProbeResultEntity>? probeData;
+    private double HealthScore { get; set; }
+    private double AvgLatency { get; set; }
+    private bool loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Use OnParametersSet so if the PubKey changes in the URL, the data refreshes
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            loading = true;
+
+            // We use the typed client here. No more "api/v1/probes" strings in our UI!
+            var response = await ProbeClient.GetHealthAsync(PubKey);
+
+            if (response != null)
+            {
+                probeData = response.Data;
+
+                // Parse the "90%" string returned by the API
+                if (double.TryParse(response.ReliabilityScore.Replace("%", ""), out var score))
+                {
+                    HealthScore = score;
+                }
+
+                AvgLatency = probeData.Any() ? probeData.Average(p => p.LatencyMs) : 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            // In a real app, you might show a "Toaster" notification here
+            Console.WriteLine($"Error fetching health data: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private string GetScoreColorClass() => HealthScore switch
+    {
+        >= 95 => "bg-success",
+        >= 80 => "bg-info",
+        >= 50 => "bg-warning",
+        _ => "bg-danger"
+    };
+}

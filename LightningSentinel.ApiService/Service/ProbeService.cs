@@ -44,5 +44,15 @@ namespace LightningSentinel.ApiService.Service
                 return false;
             }
         }
+
+        public async Task<List<ProbeResultEntity>> GetRecentProbes(string pubKey, int limit = 50)
+        {
+            return await _context.Set<ProbeResultEntity>()
+                .Where(p => p.PubKey == pubKey)
+                .OrderByDescending(p => p.CheckedAt)
+                .Take(limit)
+                .AsNoTracking() // Use AsNoTracking for faster Read-Only queries
+                .ToListAsync();
+        }
     }
 }

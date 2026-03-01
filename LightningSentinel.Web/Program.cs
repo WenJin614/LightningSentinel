@@ -19,6 +19,12 @@ builder.Services.AddHttpClient("api", client =>
 })
 .AddServiceDiscovery();
 
+builder.Services.AddHttpClient<ProbeHttpClient>(client =>
+{
+    client.BaseAddress = new Uri("https+http://apiservice"); // Use service discovery scheme
+})
+.AddServiceDiscovery();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

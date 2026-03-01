@@ -20,26 +20,26 @@ namespace LightningSentinel.ApiService.Controller.Api
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-[HttpPost]
-public async Task<IActionResult> ReceiveProbeAsync([FromBody] ProbeResult result, CancellationToken ct)
-{
-    // 1. Basic validation
-    if (result == null)
-    {
-        return BadRequest("Probe result cannot be null.");
-    }
+        [HttpGet("{pubKey}")]
+        public async Task<IActionResult> GetProbeHistory(string pubKey, [FromQuery] int limit = 50)
+        {
+            var results = await _probeService.GetRecentProbes(pubKey, limit);
 
-    // 2. Call the service and check the boolean result
-    bool isSuccess = await _probeService.AddProbeResult(result, ct);
+            if (results == null || !results.Any())
+            {
+                return NotFound(new { message = $"No probe data found for {pubKey}" });
+            }
 
-    if (!isSuccess)
-    {
-        // 3. Return a 500 status code if the service failed
-        return StatusCode(500, "A database error occurred while saving the probe result.");
-    }
+            // Calculate a quick "Health Score" for the buyer
+            var upCount = results.Count(r => r.IsAlive);
+            var reliability = (double)upCount / results.Count * 100;
 
-    // 4. Return 200 OK only if it actually saved
-    return Ok(new { message = "Probe result saved successfully." });
-}
+            return Ok(new
+            {
+                pubKey,
+                reliabilityScore = $"{reliability}%",
+                data = results
+            });
+        }
     }
 }
