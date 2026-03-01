@@ -12,6 +12,11 @@ builder.AddServiceDefaults();
 // 2. Add Controller Support (REQUIRED)
 builder.Services.AddControllers();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureEndpointDefaults(lo => lo.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2);
+});
+
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 

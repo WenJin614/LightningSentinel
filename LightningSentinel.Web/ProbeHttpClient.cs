@@ -10,6 +10,7 @@ public class ProbeHttpClient
     {
         _http = http;
     }
+
     public async Task<HealthResponse?> GetHealthAsync(string pubKey, int limit = 50)
     {
         if (string.IsNullOrWhiteSpace(pubKey)) return null;
