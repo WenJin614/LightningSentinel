@@ -1,14 +1,17 @@
 ﻿@page "/node-health/{PubKey}"
 @using LightningSentinel.Data.Entities
-@* Inject the custom client instead of the generic HttpClient *@
 @inject ProbeHttpClient ProbeClient
-
-<PageTitle>Node Health - @PubKey</PageTitle>
 
 <div class="container mt-4">
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Node Health Monitor</h5>
+            <div>
+                <h5 class="mb-0">Node Health Monitor</h5>
+                <small class="text-white-50 font-monospace text-break" style="font-size: 0.75rem;">
+                    <span class="text-uppercase fw-bold me-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Node PubKey:</span>
+                    @PubKey
+                </small>
+            </div>
             @if (!loading)
             {
                 <span class="badge @GetScoreColorClass()">Score: @HealthScore%</span>
@@ -25,10 +28,14 @@
             }
             else if (probeData == null || !probeData.Any())
             {
-                <div class="alert alert-warning">No probe history found for this Public Key.</div>
+                <div class="alert alert-warning">
+                    No probe history found for: <br />
+                    <code class="text-break">@PubKey</code>
+                </div>
             }
             else
             {
+                @* Your working stats row (Reliability, Latency, Uptime) *@
                 <div class="row text-center mb-4">
                     <div class="col-md-4 border-end">
                         <h3 class="fw-bold">@HealthScore%</h3>
@@ -78,6 +85,7 @@
 @code {
     [Parameter] public string PubKey { get; set; } = string.Empty;
 
+    // ... (Keep the rest of your code behind exactly as it is) ...
     private List<ProbeResultEntity>? probeData;
     private double HealthScore { get; set; }
     private double AvgLatency { get; set; }
@@ -85,7 +93,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        // Use OnParametersSet so if the PubKey changes in the URL, the data refreshes
         await LoadData();
     }
 
@@ -94,26 +101,20 @@
         try
         {
             loading = true;
-
-            // We use the typed client here. No more "api/v1/probes" strings in our UI!
             var response = await ProbeClient.GetHealthAsync(PubKey);
 
             if (response != null)
             {
                 probeData = response.Data;
-
-                // Parse the "90%" string returned by the API
                 if (double.TryParse(response.ReliabilityScore.Replace("%", ""), out var score))
                 {
                     HealthScore = score;
                 }
-
                 AvgLatency = probeData.Any() ? probeData.Average(p => p.LatencyMs) : 0;
             }
         }
         catch (Exception ex)
         {
-            // In a real app, you might show a "Toaster" notification here
             Console.WriteLine($"Error fetching health data: {ex.Message}");
         }
         finally
